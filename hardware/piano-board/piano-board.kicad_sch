@@ -4550,6 +4550,17 @@
 		)
 		(uuid "ad41f2bf-a240-4dd8-a724-a4f49bda8283")
 	)
+	(label "BAT+"
+		(at 21.59 31.75 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "be706205-724d-438a-8945-04ac9090815f")
+	)
 	(label "KEY_7_PAD"
 		(at 88.9 90.17 0)
 		(fields_autoplaced yes)
@@ -5651,7 +5662,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Battery:BatteryHolder_Multicomp_BC-2001_1x2032"
+		(property "Footprint" "Thanassis_Foot:MP000360"
 			(at 21.59 40.386 90)
 			(effects
 				(font
@@ -5848,7 +5859,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100n"
 			(at 250.19 90.1699 0)
 			(effects
 				(font
@@ -7218,7 +7229,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100n"
 			(at 234.95 90.1699 0)
 			(effects
 				(font
@@ -8044,7 +8055,7 @@
 				)
 			)
 		)
-		(property "Value" "L"
+		(property "Value" "2.2m"
 			(at 246.38 80.01 90)
 			(effects
 				(font
@@ -8052,7 +8063,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Inductor_SMD:L_Coilcraft_LPS4018"
 			(at 246.38 82.55 0)
 			(effects
 				(font

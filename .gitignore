@@ -6,3 +6,4 @@ fp-info-cache
 *.zip
 *.docx
 datasheets/*
+.vscode/
