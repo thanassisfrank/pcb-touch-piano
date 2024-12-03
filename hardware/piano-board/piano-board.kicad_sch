@@ -4031,6 +4031,16 @@
 	)
 	(wire
 		(pts
+			(xy 233.68 113.03) (xy 234.95 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "68f73d1b-e65d-4b28-88c2-f5ba1db47372")
+	)
+	(wire
+		(pts
 			(xy 172.72 85.09) (xy 173.99 85.09)
 		)
 		(stroke
@@ -4857,7 +4867,7 @@
 		)
 		(uuid "688b1fed-461d-42dc-8dd3-a744c1d8e3a3")
 	)
-	(text "The audio output implements \na class D amplifier"
+	(text "Class D audio amplifier"
 		(exclude_from_sim no)
 		(at 246.38 69.85 0)
 		(effects
@@ -4963,6 +4973,16 @@
 			)
 		)
 		(uuid "ba276ca8-2aab-43c2-9fd9-ef9f36c01056")
+	)
+	(text "Resistor for tuning volume"
+		(exclude_from_sim no)
+		(at 231.14 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "e31aad18-cd25-4340-86e6-09602e317b1c")
 	)
 	(text "PC[4:6] use VCC not AVCC\ncheck if any variance is\ndetectable"
 		(exclude_from_sim no)
@@ -5659,7 +5679,7 @@
 	)
 	(global_label "AUDIO_FLTR_OUT"
 		(shape input)
-		(at 242.57 113.03 180)
+		(at 233.68 113.03 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5669,7 +5689,7 @@
 		)
 		(uuid "8b960e65-b4b1-4abc-8b57-f5c8d40a86f9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 224.0423 113.03 0)
+			(at 215.1523 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6386,6 +6406,7 @@
 	(symbol
 		(lib_id "Device:Q_PMOS_GSD")
 		(at 248.92 33.02 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6393,7 +6414,7 @@
 		(dnp no)
 		(uuid "042f4d80-5846-46e9-a0cd-6bd0c9d3d246")
 		(property "Reference" "Q2"
-			(at 255.27 34.2901 0)
+			(at 255.27 31.7499 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6402,7 +6423,7 @@
 			)
 		)
 		(property "Value" "Q_PMOS_GSD"
-			(at 255.27 31.7501 0)
+			(at 255.27 34.2899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6411,7 +6432,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 254 30.48 0)
+			(at 254 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9936,16 +9957,14 @@
 	(symbol
 		(lib_id "Device:Q_NMOS_GSD")
 		(at 248.92 49.53 0)
-		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "cb5cc73e-d0ad-46f1-a526-f560025169a7")
 		(property "Reference" "Q1"
-			(at 255.27 48.2599 0)
+			(at 255.27 50.8001 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9954,7 +9973,7 @@
 			)
 		)
 		(property "Value" "Q_NMOS_GSD"
-			(at 255.27 50.7999 0)
+			(at 255.27 48.2601 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9963,7 +9982,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 254 52.07 0)
+			(at 254 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10536,6 +10555,74 @@
 			(project ""
 				(path "/02862e3b-5808-4b96-99c1-d327c4a2b9d4"
 					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 238.76 113.03 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "fc29defb-5614-4f39-b6a7-3937bfec1715")
+		(property "Reference" "R15"
+			(at 238.76 106.68 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "0"
+			(at 238.76 109.22 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+			(at 238.76 114.808 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 238.76 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 238.76 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bdb94965-d229-432a-9890-8cbd962803c5")
+		)
+		(pin "2"
+			(uuid "42aa0a44-2baf-476f-8452-cbcbc1b970f3")
+		)
+		(instances
+			(project "piano-board"
+				(path "/02862e3b-5808-4b96-99c1-d327c4a2b9d4"
+					(reference "R15")
 					(unit 1)
 				)
 			)
