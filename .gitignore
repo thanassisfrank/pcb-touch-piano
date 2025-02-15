@@ -7,3 +7,4 @@ fp-info-cache
 *.docx
 datasheets/*
 .vscode/
+build/
