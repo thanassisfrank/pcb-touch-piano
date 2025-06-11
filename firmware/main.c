@@ -44,24 +44,34 @@ int isKeyPressed(Key key)
 
 int main (void)
 {
-    // set led pin to output
-    DDRB |= _BV(DDRB2); 
+    // setup pwm ==============================================
+    // set pin to output
+    BITSET(DDRB, DDRB1);
+
+    // set clock to clkio/8 (125 KHz)
+    BITSET(TCCR1B, CS11);
+    
+    // setup waveform generation mode (mode 4, CTC)
+    BITSET(TCCR1B, WGM12);
+
+    // set led pin to output =================================
+    BITSET(DDRB, DDRB2); 
 
     Key keys[] = {
-        (Key){&DDRC, DDRC0, &PORTC, PORTC0, &PINC, PINC0},
-        (Key){&DDRC, DDRC1, &PORTC, PORTC1, &PINC, PINC1},
-        (Key){&DDRC, DDRC2, &PORTC, PORTC2, &PINC, PINC2},
-        (Key){&DDRC, DDRC3, &PORTC, PORTC3, &PINC, PINC3},
-        (Key){&DDRC, DDRC4, &PORTC, PORTC4, &PINC, PINC4},
-        (Key){&DDRC, DDRC5, &PORTC, PORTC5, &PINC, PINC5},
+        (Key){&DDRC, DDRC0, &PORTC, PORTC0, &PINC, PINC0, 120},
+        (Key){&DDRC, DDRC1, &PORTC, PORTC1, &PINC, PINC1, 113},
+        (Key){&DDRC, DDRC2, &PORTC, PORTC2, &PINC, PINC2, 106},
+        (Key){&DDRC, DDRC3, &PORTC, PORTC3, &PINC, PINC3, 100},
+        (Key){&DDRC, DDRC4, &PORTC, PORTC4, &PINC, PINC4, 95},
+        (Key){&DDRC, DDRC5, &PORTC, PORTC5, &PINC, PINC5, 89},
 
-        (Key){&DDRD, DDRD0, &PORTD, PORTD0, &PIND, PIND0},
-        (Key){&DDRD, DDRD1, &PORTD, PORTD1, &PIND, PIND1},
-        (Key){&DDRD, DDRD2, &PORTD, PORTD2, &PIND, PIND2},
-        (Key){&DDRD, DDRD3, &PORTD, PORTD3, &PIND, PIND3},
-        (Key){&DDRD, DDRD4, &PORTD, PORTD4, &PIND, PIND4},
+        (Key){&DDRD, DDRD0, &PORTD, PORTD0, &PIND, PIND0, 84},
+        (Key){&DDRD, DDRD1, &PORTD, PORTD1, &PIND, PIND1, 80},
+        (Key){&DDRD, DDRD2, &PORTD, PORTD2, &PIND, PIND2, 75},
+        (Key){&DDRD, DDRD3, &PORTD, PORTD3, &PIND, PIND3, 71},
+        (Key){&DDRD, DDRD4, &PORTD, PORTD4, &PIND, PIND4, 67},
 
-        (Key){&DDRE, DDRE0, &PORTE, PORTE0, &PINE, PINE0},
+        (Key){&DDRE, DDRE0, &PORTE, PORTE0, &PINE, PINE0, 63},
     };
 
     int anyPressed = 0;
@@ -70,20 +80,31 @@ int main (void)
     {
         _delay_ms(200);
         anyPressed = 0;
-        for (int i = 0; i < sizeof(keys)/sizeof(Key); i++)
+        for (unsigned int i = 0; i < sizeof(keys)/sizeof(Key); i++)
         {
-            anyPressed |= isKeyPressed(keys[i]);
+            if(isKeyPressed(keys[i]))
+            {
+                // key pressed, show light
+                BITSET(PORTB, PORTB2);
+
+                // set output compare value to half max
+                OCR1AL = keys[i].val;
+
+                // enable sound out (toggle when reaching ocr1a val)
+                BITSET(TCCR1A, COM1A0);
+
+                anyPressed = 1;
+                break;
+            }
         }
 
-        if (anyPressed)
-        {
-            // key pressed, show light
-            BITSET(PORTB, PORTB2);
-        }
-        else 
+        if (!anyPressed)
         {
             // key not pressed, no led
             BITCLR(PORTB, PORTB2);
+
+            // disable sound
+            BITCLR(TCCR1A, COM1A0);
         }
     }
 }

@@ -7,4 +7,5 @@ typedef struct {
     int dataBit;
     volatile uint8_t* readReg;
     int readBit;
+    unsigned int val;
 } Key;
