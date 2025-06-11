@@ -11,6 +11,35 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include "keys.h"
+
+int isKeyPressed(Key key)
+{
+
+    // charge cap briefly
+    // set pin to source current
+    BITSET(*key.dataReg, key.dataBit);
+    // set pin to input (hi z)
+    BITCLR(*key.dirReg, key.dirBit);
+    // set pin to sink current
+    BITCLR(*key.dataReg, key.dataBit);
+
+    // equalise charges
+    _delay_us(50);
+
+    asm volatile ("nop");
+    const int pressed = ISCLR(*key.readReg, key.readBit);
+
+    // reset pin to default, disharged state
+
+    // reset to default state (key cap -> 0V)
+    // set pin to sink current
+    BITCLR(*key.dataReg, key.dataBit);
+    // set key 0 pin to output
+    BITSET(*key.dirReg, key.dirBit);
+
+    return pressed;
+}
 
 
 int main (void)
@@ -18,44 +47,35 @@ int main (void)
     // set led pin to output
     DDRB |= _BV(DDRB2); 
 
-    // set audio pin to output
-    DDRE |= _BV(DDRE3);
-    
-    // set PWM for 50% duty cycle
-    // OCR0A = 128;
+    Key keys[] = {
+        (Key){&DDRC, DDRC0, &PORTC, PORTC0, &PINC, PINC0},
+        (Key){&DDRC, DDRC1, &PORTC, PORTC1, &PINC, PINC1},
+        (Key){&DDRC, DDRC2, &PORTC, PORTC2, &PINC, PINC2},
+        (Key){&DDRC, DDRC3, &PORTC, PORTC3, &PINC, PINC3},
+        (Key){&DDRC, DDRC4, &PORTC, PORTC4, &PINC, PINC4},
+        (Key){&DDRC, DDRC5, &PORTC, PORTC5, &PINC, PINC5},
 
-    // TCCR2 |= (1 << WGM21) | (1 << WGM20);
-    // // set fast PWM Mode
-    // TCCR2 |= (1 << CS21);
-    // // set prescaler to 8 and starts PWM
+        (Key){&DDRD, DDRD0, &PORTD, PORTD0, &PIND, PIND0},
+        (Key){&DDRD, DDRD1, &PORTD, PORTD1, &PIND, PIND1},
+        (Key){&DDRD, DDRD2, &PORTD, PORTD2, &PIND, PIND2},
+        (Key){&DDRD, DDRD3, &PORTD, PORTD3, &PIND, PIND3},
+        (Key){&DDRD, DDRD4, &PORTD, PORTD4, &PIND, PIND4},
+
+        (Key){&DDRE, DDRE0, &PORTE, PORTE0, &PINE, PINE0},
+    };
+
+    int anyPressed = 0;
 
     while(1) 
     {
-        // PORTB ^= _BV(PB2);
+        _delay_ms(200);
+        anyPressed = 0;
+        for (int i = 0; i < sizeof(keys)/sizeof(Key); i++)
+        {
+            anyPressed |= isKeyPressed(keys[i]);
+        }
 
-        // disharge system
-        // reset to default state (key cap -> 0V)
-        // set pin to sink current
-        BITCLR(PORTC, PORTC0);
-        // set key 0 pin to output
-        BITSET(DDRC, DDRC0);
-
-        _delay_ms(100);
-
-        // charge cap briefly
-        // set pin to source current
-        BITSET(PORTC, PORTC0);
-
-        // set pin to input (hi z)
-        BITCLR(DDRC, DDRC0);
-        BITCLR(PORTC, PORTC0);
-
-        // equalise charges
-        _delay_us(50);
-
-        // need nop to ensure sync
-        asm volatile ("nop");
-        if (ISCLR(PINC, PINC0))
+        if (anyPressed)
         {
             // key pressed, show light
             BITSET(PORTB, PORTB2);
