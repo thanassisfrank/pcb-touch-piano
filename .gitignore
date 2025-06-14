@@ -9,3 +9,4 @@ datasheets/*
 .vscode/
 build/
 bom.csv
+*.xlsx
