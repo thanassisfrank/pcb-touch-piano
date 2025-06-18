@@ -3,40 +3,69 @@
 // this is the defualt value from the internal RC osc
 #define F_CPU 1000000UL
 
-#define BITSET(r, b) r |= _BV(b)
-#define BITCLR(r, b) r &= ~_BV(b)
+#include <stddef.h>
+#include <stdbool.h>
 
-#define ISSET(r, b) (r & _BV(b)) != 0
-#define ISCLR(r, b) (r & _BV(b)) == 0
 
-#include <avr/io.h>
 #include <util/delay.h>
-#include "keys.h"
+#include "hal.h"
 
-int isKeyPressed(Key key)
+const io_pin_t keyPins[12] = {
+    (io_pin_t){&PORT_C, 0},
+    (io_pin_t){&PORT_C, 1},
+    (io_pin_t){&PORT_C, 2},
+    (io_pin_t){&PORT_C, 3},
+    (io_pin_t){&PORT_C, 4},
+    (io_pin_t){&PORT_C, 5},
+
+    (io_pin_t){&PORT_D, 0},
+    (io_pin_t){&PORT_D, 1},
+    (io_pin_t){&PORT_D, 2},
+    (io_pin_t){&PORT_D, 3},
+    (io_pin_t){&PORT_D, 4},
+
+    (io_pin_t){&PORT_E, 0},
+};
+
+const unsigned int pitches[12] = {
+    477,
+    450,
+    425,
+    401,
+    379,
+    357,
+    337,
+    318,
+    300,
+    284,
+    268,
+    253,
+};
+
+int isKeyPressed(const io_pin_t* key)
 {
 
     // charge cap briefly
     // set pin to source current
-    BITSET(*key.dataReg, key.dataBit);
+    SET_PIN_DATA(key, HIGH);
     // set pin to input (hi z)
-    BITCLR(*key.dirReg, key.dirBit);
+    SET_PIN_DIR(key, INPUT);
     // set pin to sink current
-    BITCLR(*key.dataReg, key.dataBit);
+    SET_PIN_DATA(key, LOW);
 
-    // equalise charges
-    _delay_us(50);
+    // equalise charges for short period
+    _delay_us(70);
 
-    asm volatile ("nop");
-    const int pressed = ISCLR(*key.readReg, key.readBit);
+    // check pin state
+    const int pressed = GET_PIN_DATA(key);
 
     // reset pin to default, disharged state
 
     // reset to default state (key cap -> 0V)
     // set pin to sink current
-    BITCLR(*key.dataReg, key.dataBit);
+    SET_PIN_DATA(key, LOW);
     // set key 0 pin to output
-    BITSET(*key.dirReg, key.dirBit);
+    SET_PIN_DIR(key, OUTPUT);
 
     return pressed;
 }
@@ -45,8 +74,9 @@ int isKeyPressed(Key key)
 int main (void)
 {
     // setup pwm ==============================================
+    io_pin_t soundPin = {&PORT_B, 1};
     // set pin to output
-    BITSET(DDRB, DDRB1);
+    SET_PIN_DIR(&soundPin, OUTPUT);
 
     // set clock to clkio/8 (125 KHz)
     BITSET(TCCR1B, CS11);
@@ -55,45 +85,32 @@ int main (void)
     BITSET(TCCR1B, WGM12);
 
     // set led pin to output =================================
-    BITSET(DDRB, DDRB2); 
+    io_pin_t LEDPin = {&PORT_B, 2};
+    SET_PIN_DIR(&LEDPin, OUTPUT);
 
-    Key keys[] = {
-        (Key){&DDRC, DDRC0, &PORTC, PORTC0, &PINC, PINC0, 120},
-        (Key){&DDRC, DDRC1, &PORTC, PORTC1, &PINC, PINC1, 113},
-        (Key){&DDRC, DDRC2, &PORTC, PORTC2, &PINC, PINC2, 106},
-        (Key){&DDRC, DDRC3, &PORTC, PORTC3, &PINC, PINC3, 100},
-        (Key){&DDRC, DDRC4, &PORTC, PORTC4, &PINC, PINC4, 95},
-        (Key){&DDRC, DDRC5, &PORTC, PORTC5, &PINC, PINC5, 89},
+    // begin loop ============================================
 
-        (Key){&DDRD, DDRD0, &PORTD, PORTD0, &PIND, PIND0, 84},
-        (Key){&DDRD, DDRD1, &PORTD, PORTD1, &PIND, PIND1, 80},
-        (Key){&DDRD, DDRD2, &PORTD, PORTD2, &PIND, PIND2, 75},
-        (Key){&DDRD, DDRD3, &PORTD, PORTD3, &PIND, PIND3, 71},
-        (Key){&DDRD, DDRD4, &PORTD, PORTD4, &PIND, PIND4, 67},
-
-        (Key){&DDRE, DDRE0, &PORTE, PORTE0, &PINE, PINE0, 63},
-    };
-
-    int anyPressed = 0;
+    bool anyPressed = false;
 
     while(1) 
     {
         _delay_ms(200);
+
         anyPressed = 0;
-        for (unsigned int i = 0; i < sizeof(keys)/sizeof(Key); i++)
+        for (size_t i = 0; i < sizeof(keyPins)/sizeof(keyPins[0]); i++)
         {
-            if(isKeyPressed(keys[i]))
+            if(isKeyPressed(&(keyPins[i])))
             {
                 // key pressed, show light
-                BITSET(PORTB, PORTB2);
+                SET_PIN_DATA(&LEDPin, HIGH);
 
                 // set output compare value to half max
-                OCR1AL = keys[i].val;
+                OCR1A = pitches[i];
 
                 // enable sound out (toggle when reaching ocr1a val)
                 BITSET(TCCR1A, COM1A0);
 
-                anyPressed = 1;
+                anyPressed = true;
                 break;
             }
         }
@@ -101,7 +118,7 @@ int main (void)
         if (!anyPressed)
         {
             // key not pressed, no led
-            BITCLR(PORTB, PORTB2);
+            SET_PIN_DATA(&LEDPin, LOW);
 
             // disable sound
             BITCLR(TCCR1A, COM1A0);
