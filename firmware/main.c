@@ -3,6 +3,8 @@
 // this is the defualt value from the internal RC osc
 #define F_CPU 1000000UL
 
+#define ARRAY_LEN(a) (sizeof(a)/sizeof(a[0]))
+
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -42,21 +44,30 @@ const unsigned int pitches[12] = {
     253,
 };
 
+bool checkKeyStates(io_pin_t* keys, size_t pinCount, size_t* pressedIndex)
+{
+    for (size_t i = 0; i < pinCount; i++)
+    {
+        if(!isKeyPressed(&(keys[i]))) continue;
+        
+        // this key is pressed
+        *pressedIndex = i;
+        return true;
+    }
+
+    return false;
+}
+
 int isKeyPressed(const io_pin_t* key)
 {
 
-    // charge cap briefly
-    // set pin to source current
-    SET_PIN_DATA(key, HIGH);
-    // set pin to input (hi z)
-    SET_PIN_DIR(key, INPUT);
-    // set pin to sink current
-    SET_PIN_DATA(key, LOW);
+    // charge key
+    chargePinAndTransfer(key, 0);
 
     // equalise charges for short period
     _delay_us(70);
 
-    // check pin state
+    // check internal cap state
     const int pressed = GET_PIN_DATA(key);
 
     // reset pin to default, disharged state
@@ -90,32 +101,24 @@ int main (void)
 
     // begin loop ============================================
 
-    bool anyPressed = false;
+    size_t pressedIndex;
 
     while(1) 
     {
-        _delay_ms(200);
+        _delay_ms(100);
 
-        anyPressed = 0;
-        for (size_t i = 0; i < sizeof(keyPins)/sizeof(keyPins[0]); i++)
+        if (checkKeyStates(keyPins, ARRAY_LEN(keyPins), &pressedIndex))
         {
-            if(isKeyPressed(&(keyPins[i])))
-            {
-                // key pressed, show light
-                SET_PIN_DATA(&LEDPin, HIGH);
+            // key pressed, show light
+            SET_PIN_DATA(&LEDPin, HIGH);
 
-                // set output compare value to half max
-                OCR1A = pitches[i];
+            // set output compare value to half max
+            OCR1A = pitches[pressedIndex];
 
-                // enable sound out (toggle when reaching ocr1a val)
-                BITSET(TCCR1A, COM1A0);
-
-                anyPressed = true;
-                break;
-            }
+            // enable sound out (toggle when reaching ocr1a val)
+            BITSET(TCCR1A, COM1A0);
         }
-
-        if (!anyPressed)
+        else
         {
             // key not pressed, no led
             SET_PIN_DATA(&LEDPin, LOW);

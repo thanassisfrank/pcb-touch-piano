@@ -60,4 +60,4 @@ typedef enum {
 #define GET_PIN_DATA(pin) (ISCLR(*((pin)->port->readReg), (pin)->num))
 
 
-
+void chargePinAndTransfer(const io_pin_t*, const unsigned int);
