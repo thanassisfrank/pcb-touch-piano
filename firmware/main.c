@@ -44,16 +44,25 @@ const unsigned int pitches[12] = {
     253,
 };
 
-
 static volatile uint8_t octave = 0;
+static volatile uint8_t waveIndex = 0;
 
 const io_pin_t octDownPin    = {&PORT_D, 5};
 const io_pin_t octUpPin      = {&PORT_D, 6};
 const io_pin_t waveChangePin = {&PORT_D, 7};
 
+// track bits of pins that have been pressed
+uint8_t pressedBits = 0;
+// initialise to all ones
+uint8_t lastPortDBits = 0xff;
 ISR (PCINT2_vect)
 {
-    octave++;
+    // 1 if bits different
+    uint8_t changedBits = PIND ^ lastPortDBits;
+    // 1 if bits different and currently low
+    pressedBits |= changedBits & ~PIND;
+    // save this bits state
+    lastPortDBits = PIND;
 }
 
 
@@ -136,6 +145,24 @@ int main (void)
     while(1) 
     {
         _delay_ms(100);
+
+        // handle button interrupts that have happened
+        if(ISSET(pressedBits, octDownPin.num))
+        {
+            if (octave > 0) octave--;
+        }
+
+        if(ISSET(pressedBits, octUpPin.num))
+        {
+            octave++;
+        }
+
+        if(ISSET(pressedBits, waveChangePin.num))
+        {
+            waveIndex++;
+        }
+
+        pressedBits = 0;
 
         if (checkKeyStates(keyPins, ARRAY_LEN(keyPins), &pressedIndex))
         {
