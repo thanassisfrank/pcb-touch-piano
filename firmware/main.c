@@ -29,22 +29,22 @@ const io_pin_t keyPins[12] = {
     (io_pin_t){&PORT_E, 0},
 };
 
-const unsigned int pitches[12] = {
-    477,
-    450,
-    425,
-    401,
-    379,
-    357,
-    337,
-    318,
-    300,
-    284,
-    268,
-    253,
+const uint16_t pitches[12] = {
+    30578,
+    28861,
+    27241,
+    25712,
+    24269,
+    22907,
+    21621,
+    20408,
+    19262,
+    18181,
+    17161,
+    16198,
 };
 
-static volatile uint8_t octave = 0;
+static volatile uint8_t octave = 4;
 static volatile uint8_t waveIndex = 0;
 
 const io_pin_t octDownPin    = {&PORT_D, 5};
@@ -111,8 +111,8 @@ int main (void)
     // set pin to output
     SET_PIN_DIR(&soundPin, OUTPUT);
 
-    // set clock to clkio/8 (125 KHz)
-    BITSET(TCCR1B, CS11);
+    // set clock to clkio (1 MHz)
+    BITSET(TCCR1B, CS10);
     
     // setup waveform generation mode (mode 4, CTC)
     BITSET(TCCR1B, WGM12);
