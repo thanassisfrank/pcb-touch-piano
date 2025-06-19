@@ -36,3 +36,22 @@ void chargePinAndTransfer(const io_pin_t* pin, const unsigned int waitCycles)
     // transfer charge gathered to pin capacitance
     *dataReg = dataRegTransfer;
 }
+
+void enablePinInterupt(const uint8_t num)
+{
+    if (num <= 7)
+    {
+        BITSET(PCICR, PCIE0);
+        BITSET(PCMSK0, num);
+    }
+    else if (num >= 8 && num <= 14)
+    {
+        BITSET(PCICR, PCIE1);
+        BITSET(PCMSK1, num - 8);
+    }
+    else if (num >= 16 && num <= 23)
+    {
+        BITSET(PCICR, PCIE2);
+        BITSET(PCMSK2, num - 16);
+    }
+}

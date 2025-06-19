@@ -1,6 +1,7 @@
 #pragma once
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <stdint.h>
 
 // macros =======================================
@@ -35,7 +36,7 @@ extern io_port_t PORT_E;
 
 typedef struct {
     io_port_t* port;
-    unsigned int num;
+    uint8_t num;
 } io_pin_t;
 
 typedef enum {
@@ -61,3 +62,5 @@ typedef enum {
 
 
 void chargePinAndTransfer(const io_pin_t*, const unsigned int);
+
+void enablePinInterupt(const uint8_t);

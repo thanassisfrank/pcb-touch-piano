@@ -44,6 +44,19 @@ const unsigned int pitches[12] = {
     253,
 };
 
+
+static volatile uint8_t octave = 0;
+
+const io_pin_t octDownPin    = {&PORT_D, 5};
+const io_pin_t octUpPin      = {&PORT_D, 6};
+const io_pin_t waveChangePin = {&PORT_D, 7};
+
+ISR (PCINT2_vect)
+{
+    octave++;
+}
+
+
 bool checkKeyStates(io_pin_t* keys, size_t pinCount, size_t* pressedIndex)
 {
     for (size_t i = 0; i < pinCount; i++)
@@ -99,6 +112,23 @@ int main (void)
     io_pin_t LEDPin = {&PORT_B, 2};
     SET_PIN_DIR(&LEDPin, OUTPUT);
 
+    // enable buttons ========================================
+    // configure as inputs
+    SET_PIN_DIR(&octDownPin, INPUT);
+    SET_PIN_DIR(&octUpPin, INPUT);
+    SET_PIN_DIR(&waveChangePin, INPUT);
+
+    // enable pullups
+    SET_PIN_DATA(&octDownPin, HIGH);
+    SET_PIN_DATA(&octUpPin, HIGH);
+    SET_PIN_DATA(&waveChangePin, HIGH);
+
+    // setup interrupts
+    enablePinInterupt(21);
+    enablePinInterupt(22);
+    enablePinInterupt(23);
+    sei();
+
     // begin loop ============================================
 
     size_t pressedIndex;
@@ -113,7 +143,7 @@ int main (void)
             SET_PIN_DATA(&LEDPin, HIGH);
 
             // set output compare value to half max
-            OCR1A = pitches[pressedIndex];
+            OCR1A = pitches[pressedIndex] >> octave;
 
             // enable sound out (toggle when reaching ocr1a val)
             BITSET(TCCR1A, COM1A0);
