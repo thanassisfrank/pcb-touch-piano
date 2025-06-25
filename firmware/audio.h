@@ -9,7 +9,7 @@ typedef enum {
     SINE_WAVE
 } wave_t;
 
-extern const wave_t waves[2];
+extern const wave_t waves[3];
 
 // sets the current wave
 void setWave(wave_t);

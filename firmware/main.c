@@ -143,7 +143,8 @@ int main (void)
 
         if(ISSET(pressedBits, waveChangePin.num))
         {
-            waveIndex = (waveIndex + 1) % ARRAY_LEN(waves);
+            waveIndex++;
+            if (waveIndex >= ARRAY_LEN(waves)) waveIndex = 0;
 
             // do any setup needed for new wavform generator
             setWave(waves[waveIndex]);
