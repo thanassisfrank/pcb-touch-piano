@@ -11,6 +11,7 @@
 
 #include <util/delay.h>
 #include "hal.h"
+#include "audio.h"
 
 const io_pin_t keyPins[12] = {
     (io_pin_t){&PORT_C, 0},
@@ -27,21 +28,6 @@ const io_pin_t keyPins[12] = {
     (io_pin_t){&PORT_D, 4},
 
     (io_pin_t){&PORT_E, 0},
-};
-
-const uint16_t pitches[12] = {
-    30578,
-    28861,
-    27241,
-    25712,
-    24269,
-    22907,
-    21621,
-    20408,
-    19262,
-    18181,
-    17161,
-    16198,
 };
 
 static volatile uint8_t octave = 4;
@@ -111,11 +97,8 @@ int main (void)
     // set pin to output
     SET_PIN_DIR(&soundPin, OUTPUT);
 
-    // set clock to clkio (1 MHz)
-    BITSET(TCCR1B, CS10);
-    
-    // setup waveform generation mode (mode 4, CTC)
-    BITSET(TCCR1B, WGM12);
+    // setup waveform generator
+    setWave(SQUARE_WAVE);
 
     // set led pin to output =================================
     io_pin_t LEDPin = {&PORT_B, 2};
@@ -160,6 +143,8 @@ int main (void)
         if(ISSET(pressedBits, waveChangePin.num))
         {
             waveIndex++;
+
+            // do any setup needed for new wavform generator
         }
 
         pressedBits = 0;
@@ -169,19 +154,15 @@ int main (void)
             // key pressed, show light
             SET_PIN_DATA(&LEDPin, HIGH);
 
-            // set output compare value to half max
-            OCR1A = pitches[pressedIndex] >> octave;
-
-            // enable sound out (toggle when reaching ocr1a val)
-            BITSET(TCCR1A, COM1A0);
+            // play the correct pitch
+            setNote(pressedIndex, octave);
         }
         else
         {
             // key not pressed, no led
             SET_PIN_DATA(&LEDPin, LOW);
 
-            // disable sound
-            BITCLR(TCCR1A, COM1A0);
+            clearNotes();
         }
     }
 }
