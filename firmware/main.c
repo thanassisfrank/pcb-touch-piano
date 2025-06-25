@@ -30,8 +30,9 @@ const io_pin_t keyPins[12] = {
     (io_pin_t){&PORT_E, 0},
 };
 
-static volatile uint8_t octave = 4;
-static volatile uint8_t waveIndex = 0;
+volatile uint8_t octave = 4;
+volatile uint8_t waveIndex = 0;
+
 
 const io_pin_t octDownPin    = {&PORT_D, 5};
 const io_pin_t octUpPin      = {&PORT_D, 6};
@@ -98,7 +99,7 @@ int main (void)
     SET_PIN_DIR(&soundPin, OUTPUT);
 
     // setup waveform generator
-    setWave(SQUARE_WAVE);
+    setWave(waves[waveIndex]);
 
     // set led pin to output =================================
     io_pin_t LEDPin = {&PORT_B, 2};
@@ -142,9 +143,10 @@ int main (void)
 
         if(ISSET(pressedBits, waveChangePin.num))
         {
-            waveIndex++;
+            waveIndex = (waveIndex + 1) % ARRAY_LEN(waves);
 
             // do any setup needed for new wavform generator
+            setWave(waves[waveIndex]);
         }
 
         pressedBits = 0;
