@@ -131,7 +131,7 @@ int main (void)
 
     while(1) 
     {
-        _delay_ms(100);
+        // _delay_ms(100);
 
         // handle button interrupts that have happened
         if(ISSET(pressedBits, octDownPin.num))

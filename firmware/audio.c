@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include "hal.h"
 
-#define PWM_BITS 7
+#define PWM_BITS 6
 #define PWM_TOP (2 << PWM_BITS)
 
 // external constants
