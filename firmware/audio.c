@@ -1,5 +1,10 @@
 #include "audio.h"
 
+#include <stdint.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include "hal.h"
+
 // external constants
 const wave_t waves[3] = {SQUARE_WAVE, SAW_WAVE, SINE_WAVE};
 

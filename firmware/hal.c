@@ -1,5 +1,9 @@
 #include "hal.h"
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/atomic.h>
+
 // collections of registers for each io port
 io_port_t PORT_B = {&DDRB, &PORTB, &PINB};
 io_port_t PORT_C = {&DDRC, &PORTC, &PINC};
@@ -23,18 +27,21 @@ void chargePinAndTransfer(const io_pin_t* pin, const unsigned int waitCycles)
     uint8_t dataRegTransfer = *dataReg;
     BITCLR(dataRegTransfer, pin->num);
 
-    // charge external pin
-    *dataReg = dataRegCharge;
-    *dirReg = dirRegHiZ;
-
-    // wait a number of cycles
-    for (unsigned int i = 0; i < waitCycles; i++)
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        asm("nop");
+        // charge external pin
+        *dataReg = dataRegCharge;
+        *dirReg = dirRegHiZ;
+    
+        // wait a number of cycles
+        for (unsigned int i = 0; i < waitCycles; i++)
+        {
+            asm("nop");
+        }
+    
+        // transfer charge gathered to pin capacitance
+        *dataReg = dataRegTransfer;
     }
-
-    // transfer charge gathered to pin capacitance
-    *dataReg = dataRegTransfer;
 }
 
 void enablePinInterupt(const uint8_t num)

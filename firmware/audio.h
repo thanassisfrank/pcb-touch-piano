@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "hal.h"
 
 typedef enum {
     SQUARE_WAVE=0,
