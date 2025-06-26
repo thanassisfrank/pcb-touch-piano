@@ -120,6 +120,8 @@ int main (void)
     enablePinInterupt(21);
     enablePinInterupt(22);
     enablePinInterupt(23);
+
+    // enable interrupts globally ============================
     sei();
 
     // begin loop ============================================
@@ -143,8 +145,7 @@ int main (void)
 
         if(ISSET(pressedBits, waveChangePin.num))
         {
-            waveIndex++;
-            if (waveIndex >= ARRAY_LEN(waves)) waveIndex = 0;
+            waveIndex = (waveIndex + 1) % ARRAY_LEN(waves);
 
             // do any setup needed for new wavform generator
             setWave(waves[waveIndex]);
